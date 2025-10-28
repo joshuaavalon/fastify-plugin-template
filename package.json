@@ -20,6 +20,20 @@
     "url": "https://github.com/joshuaavalon/fastify-plugin-template/issues"
   },
   "homepage": "https://github.com/joshuaavalon/fastify-plugin-template#readme",
+  "imports": {},
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "keywords": [
+    "fastify",
+    "fastify-plugin"
+  ],
+  "files": [
+    "dist/**/*",
+    "!dist/**/__tests__/**/*"
+  ],
   "devDependencies": {
     "@joshuaavalon/eslint-config-typescript": "^10.0.0",
     "@types/node": "^24.9.1",
