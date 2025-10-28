@@ -1,14 +1,14 @@
+name: publish
+
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: write
   issues: write
   pull-requests: write
-
-name: Publish Package
 
 jobs:
   check-secrets:
@@ -22,6 +22,7 @@ jobs:
         run: echo "::set-output name=exists::true"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
   release-please:
     name: release-please
     runs-on: ubuntu-latest
@@ -36,6 +37,7 @@ jobs:
         with:
           config-file: .release-please/config.json
           manifest-file: .release-please/manifest.json
+
   publish-package:
     name: publish-package
     runs-on: ubuntu-latest
