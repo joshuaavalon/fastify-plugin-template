@@ -1,0 +1,50 @@
+name: release
+on:
+  push:
+    branches:
+      - master
+jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-latest
+    outputs:
+      release-javascript: ${{ steps.release.outputs['packages/javascript--release_created'] || false }}
+      release-typescript: ${{ steps.release.outputs['packages/typescript--release_created'] || false }}
+      release-react: ${{ steps.release.outputs['packages/react--release_created'] || false }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+  release-packages:
+    name: release-packages
+    runs-on: ubuntu-latest
+    needs:
+      - release-please
+    if: contains(needs.release-please.outputs.*, 'true')
+    strategy:
+      matrix:
+        package:
+          - name: "@joshuaavalon/eslint-config-javascript"
+            is-release: ${{ fromJSON(needs.release-please.outputs.release-javascript) }}
+          - name: "@joshuaavalon/eslint-config-typescript"
+            is-release: ${{ fromJSON(needs.release-please.outputs.release-typescript) }}
+          - name: "@joshuaavalon/eslint-config-react"
+            is-release: ${{ fromJSON(needs.release-please.outputs.release-react) }}
+        exclude:
+          - package:
+              is-release: false
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run build
+      - run: npm publish --workspace ${{ matrix.package.name }} --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
